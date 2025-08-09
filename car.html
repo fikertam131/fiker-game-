@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Two Player Car Race</title>
+  <style>
+    body {
+      margin: 0;
+      background: #222;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    canvas {
+      background: #333;
+      display: block;
+      margin: 20px auto;
+      border: 3px solid white;
+    }
+    #winner {
+      font-size: 30px;
+      margin: 10px;
+      color: yellow;
+    }
+    #restartBtn {
+      display: none;
+      padding: 10px 20px;
+      font-size: 18px;
+      background: limegreen;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    #restartBtn:hover {
+      background: green;
+    }
+    .back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #3498db;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: background 0.3s;
+    }
+
+    .back-button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← Back</a>
+  <h1>🏁 Two Player Car Race 🏁</h1>
+  <canvas id="gameCanvas" width="800" height="500"></canvas>
+  <div id="winner"></div>
+  <button id="restartBtn">Restart Race</button>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const restartBtn = document.getElementById("restartBtn");
+    const winnerText = document.getElementById("winner");
+
+    let player1, player2, gameOver, keysPressed;
+
+    function initGame() {
+      player1 = { x: 150, y: 400, color: "red", up: "w", down: "s", left: "a", right: "d" };
+      player2 = { x: 550, y: 400, color: "blue", up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight" };
+      keysPressed = {};
+      gameOver = false;
+      winnerText.textContent = "";
+      restartBtn.style.display = "none";
+      update();
+    }
+
+    document.addEventListener("keydown", e => keysPressed[e.key] = true);
+    document.addEventListener("keyup", e => keysPressed[e.key] = false);
+
+    function drawCar(p) {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, 40, 60);
+    }
+
+    function movePlayer(p) {
+      if (keysPressed[p.up]) p.y -= 4;
+      if (keysPressed[p.down]) p.y += 4;
+      if (keysPressed[p.left]) p.x -= 4;
+      if (keysPressed[p.right]) p.x += 4;
+    }
+
+    function drawTrack() {
+      ctx.fillStyle = "gray";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "white";
+      for (let i = 0; i < canvas.height; i += 40) {
+        ctx.fillRect(canvas.width / 2 - 5, i, 10, 20);
+      }
+
+      ctx.fillStyle = "yellow";
+      ctx.fillRect(0, 50, canvas.width, 10); // Finish line
+    }
+
+    function checkWin(p, name) {
+      if (p.y <= 50) {
+        gameOver = true;
+        winnerText.textContent = `🏆 ${name} Wins!`;
+        restartBtn.style.display = "inline-block";
+      }
+    }
+
+    function update() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawTrack();
+
+      movePlayer(player1);
+      movePlayer(player2);
+
+      drawCar(player1);
+      drawCar(player2);
+
+      checkWin(player1, "Player 1");
+      checkWin(player2, "Player 2");
+
+      if (!gameOver) {
+        requestAnimationFrame(update);
+      }
+    }
+
+    restartBtn.addEventListener("click", initGame);
+
+    initGame();
+  </script>
+</body>
+</html>
